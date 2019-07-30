@@ -51,8 +51,7 @@ public class PngImgTaks {
                     file2.mkdir();
                 }
                 String sub_category_url = url+"imgs/"+category+"/"+sub_category+"/";
-                System.out.println("=============================================");
-                System.out.println(sub_category_url.toLowerCase());
+                System.out.println("====================二级分类地址："+sub_category_url.toLowerCase()+"；开始爬取=========================");
                 //进入二级分类，去一张张获取图片
                 sub_ctg(sub_category_url.toLowerCase(),file2);
                 break;
