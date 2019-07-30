@@ -1,13 +1,16 @@
-package com.aoyun.crawlImg;
+package com.aoyun.crawlImg.DicTim;
 
+import com.aoyun.crawlImg.HttpUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.UUID;
 
 @Component
 public class DicTimTask {
@@ -15,11 +18,10 @@ public class DicTimTask {
 
     public static void main(String[] args) throws IOException {
         DicTimTask dicTimTask=new DicTimTask();
-        dicTimTask.jdTask();
+        dicTimTask.TicTask();
     }
 
-    //每当下载任务完成后，间隔多长时间进行下一次的任务
-    public void jdTask() throws IOException{
+    public void TicTask() throws IOException{
         //声明需要解析的初始地址
         String url = "https://www.sxxl.com/VectorGallery-index-cid-6-channel-2085-sex-32940.html?&p=";
         //按照页码对手机的搜索信息进行遍历爬取
