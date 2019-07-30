@@ -124,10 +124,12 @@ public class HttpUtil {
                 if (response.getEntity() != null){
                     //获取图片名，重命名图片
                     String picName = url.substring(url.lastIndexOf("/"));
-                    System.out.println("picName="+picName);
+                    System.out.println("开始下载:"+picName);
                     //下载图片
                     OutputStream outputStream = new FileOutputStream(file+"\\"+picName);
                     response.getEntity().writeTo(outputStream);
+                    outputStream.close();
+                    System.out.println("下载完成:"+picName);
                     //返回图片名称
                     return picName;
                 }else {

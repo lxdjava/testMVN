@@ -8,6 +8,7 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.*;
 
 public class PngImgTaks {
     private static HttpUtil httpUtil = new HttpUtil();
@@ -61,6 +62,11 @@ public class PngImgTaks {
         }
     }
 
+    // 创建等待队列
+    private static BlockingQueue bqueue = new ArrayBlockingQueue(20);
+    // 创建一个单线程执行程序，它可安排在给定延迟后运行命令或者定期地执行。
+    private static ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 3, 2, TimeUnit.MILLISECONDS, bqueue);
+
     private static void sub_ctg(String  url, File file2){
         String html = httpUtil.doGetHtml(url);
         Document document = Jsoup.parse(html);
@@ -68,8 +74,24 @@ public class PngImgTaks {
         for (Element img : imgs){
             String src = "http://pngimg.com"+img.select("img").attr("src");
             System.out.println(src);
-            httpUtil.doGetPngImg(src, file2);
+            pool.execute(new SubThread(src,file2));
+            //httpUtil.doGetPngImg(src, file2);
             //break;
+        }
+    }
+
+
+    static class SubThread implements Runnable {
+        private String src;
+        private File file;
+        public SubThread(String s,File f) {
+            this.src=s;
+            this.file=f;
+        }
+
+        @Override
+        public void run() {
+            httpUtil.doGetPngImg(src, file);
         }
     }
 }
