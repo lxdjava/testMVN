@@ -1,6 +1,7 @@
 package com.aoyun.crawlImg.pngimg;
 
 import com.aoyun.crawlImg.HttpUtil;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,21 +14,39 @@ import java.util.concurrent.*;
 public class PngImgTaks {
     private static HttpUtil httpUtil = new HttpUtil();
     private static PngImgPojo pngImgPojo = new PngImgPojo();
+    // 创建等待队列
+    //private static BlockingQueue bqueue = new ArrayBlockingQueue(100);
+    private static LinkedBlockingQueue linkedBlockingQueue = new LinkedBlockingQueue();
+    // 创建一个单线程执行程序，它可安排在给定延迟后运行命令或者定期地执行。
+    private static ThreadPoolExecutor pool = new ThreadPoolExecutor(5, 5, 0, TimeUnit.MILLISECONDS, linkedBlockingQueue);
+
 
     public static void main(String[] args) throws IOException {
+        try {
+            Thread.sleep(1000*60*60*2);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         PngImgTaks pngImgTaks = new PngImgTaks();
         pngImgTaks.TicTask();
+        //关闭线程池
+        //pool.shutdown();
     }
 
     public void TicTask() throws IOException {
         //声明需要解析的初始地址
         String url = "http://pngimg.com/";
         //要将图片下载到哪个文件夹
-        File file = new File("H:\\爬虫\\pngimg.com");
+        File file = new File("F:\\pngimg.com");
         this.parse(url, file);
-
     }
-    //解析页面，获取数据
+    /*
+    *
+    * 解析页面，获取数据
+    *
+    * @param url 要爬取的网站
+    * @param file 图片保存地址
+    * */
     private void parse(String url, File file) throws IOException {
         //解析html获取DOM元素
         String html = httpUtil.doGetHtml(url);
@@ -37,34 +56,31 @@ public class PngImgTaks {
         for (Element element : elements){
             //获取一级分类
             Elements categorys = element.select(".category a");
-            String category = categorys.text();
+            //有些一级分类有逗号，去掉；空格替换下划线
+            String category = categorys.text().split(",")[0].replace(" ","_");
             File file1 = new File(file.getPath()+"\\"+category);
             if (!file1.exists()){
                 file1.mkdir();
             }
             //获取二级分类
             Elements sub_categorys = element.select(".sub_category a");
+            System.out.println("###################################一级分类："+category+" 开始爬取###################################");
             for (Element element1 : sub_categorys){
-                String sub_category = element1.text();
+                String sub_category = element1.text().replace(" ","_");
                 File file2 = new File(file1.getPath()+"\\"+sub_category);
                 if (!file2.exists()){
                     file2.mkdir();
                 }
                 String sub_category_url = url+"imgs/"+category+"/"+sub_category+"/";
-                System.out.println("====================二级分类地址："+sub_category_url.toLowerCase()+"；开始爬取=========================");
+                System.out.println("-------------二级分类："+category+"> "+sub_category_url.toLowerCase()+" 开始爬取--------------");
                 //进入二级分类，去一张张获取图片
                 sub_ctg(sub_category_url.toLowerCase(),file2);
-                break;
+                System.out.println("-------------二级分类："+category+"> "+sub_category_url.toLowerCase()+" 解析完成，等待线程下载图片--------------");
             }
-            break;
+            System.out.println("*************************二级分类地址："+category+" 解析完成，等待线程下载图片**************************");
 
         }
     }
-
-    // 创建等待队列
-    private static BlockingQueue bqueue = new ArrayBlockingQueue(20);
-    // 创建一个单线程执行程序，它可安排在给定延迟后运行命令或者定期地执行。
-    private static ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 3, 2, TimeUnit.MILLISECONDS, bqueue);
 
     private static void sub_ctg(String  url, File file2){
         String html = httpUtil.doGetHtml(url);
@@ -72,10 +88,8 @@ public class PngImgTaks {
         Elements imgs = document.select("div.png_png.png_imgs>a");
         for (Element img : imgs){
             String src = "http://pngimg.com"+img.select("img").attr("src");
-            System.out.println(src);
+            //System.out.println(src);
             pool.execute(new SubThread(src,file2));
-            //httpUtil.doGetPngImg(src, file2);
-            //break;
         }
     }
 

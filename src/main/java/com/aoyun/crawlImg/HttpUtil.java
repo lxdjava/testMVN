@@ -3,6 +3,7 @@ package com.aoyun.crawlImg;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -16,8 +17,27 @@ import java.util.UUID;
 
 public class HttpUtil {
     private PoolingHttpClientConnectionManager cm;
+    private static volatile FileOutputStream finished;
+    private static volatile FileOutputStream existed;
+    private static volatile FileOutputStream entituNull;
+    private static volatile FileOutputStream ioException;
+    private static volatile FileOutputStream responseClose;
+    private static volatile FileOutputStream exception;
 
-    public HttpUtil(){
+    static {
+        try {
+            finished = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\finished.txt"));
+            existed = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\existed.txt"));
+            entituNull = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\entity_null.txt"));
+            ioException = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\io_exception.txt"));
+            responseClose = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\response_close.txt"));
+            exception = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\exception.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public HttpUtil() {
         this.cm = new PoolingHttpClientConnectionManager();
         //设置最大连接数
         this.cm.setMaxTotal(100);
@@ -29,28 +49,54 @@ public class HttpUtil {
         //通过连接词获取httpClient对象
         CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(cm).build();
         //通过创建httpGet对象，设置url对象
-        HttpGet httpGet = new HttpGet(url);
+        HttpGet httpGet = null;
+        try {
+            httpGet = new HttpGet(url);
+        }catch (Exception e){
+            try {
+                exception.write(("地址"+url+"不存在").getBytes());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                return null;
+            }
+        }
+
         //设置请求信息
-        httpGet.setConfig(this.getConfig());
+        try {
+            httpGet.setConfig(this.getConfig());
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
         //使用httpClient发起请求，获取响应
         CloseableHttpResponse response = null;
         try {
-            response = httpClient.execute(httpGet);
+            try {
+                //这里有可能连接超时
+                response = httpClient.execute(httpGet);
+            }catch (Exception e){
+                exception.write((url+e.getMessage()).getBytes());
+                return null;
+            }
+
             if (response.getStatusLine().getStatusCode() == 200){
                 //判断响应体Entity是否为空，如果不为空就可以使用EntityUtils
                 if (response.getEntity() != null){
                     return EntityUtils.toString(response.getEntity(),"utf8");
                 }else {
-                    return "响应体为空";
+                    return null;
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }finally {
             try {
                 response.close();
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
             }
         }
         //解析响应，返回结果
@@ -89,11 +135,13 @@ public class HttpUtil {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }finally {
             try {
                 response.close();
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
             }
         }
         //解析响应，返回结果
@@ -102,13 +150,14 @@ public class HttpUtil {
     //设置请求信息
     private RequestConfig getConfig(){
         return RequestConfig.custom()
-                .setSocketTimeout(200000)
-                .setConnectionRequestTimeout(150000)
-                .setSocketTimeout(200000)
+                //从连接池中获取连接的超时时间
+                .setConnectionRequestTimeout(3000)
+                .setConnectTimeout(5000)
+                .setSocketTimeout(25000)
                 .build();
     }
 
-    public String doGetPngImg(String url,File file){
+    public void doGetPngImg(String url,File file) {
         //通过连接池获取httpClient对象
         CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(cm).build();
         //通过创建httpGet对象，设置url对象
@@ -117,37 +166,44 @@ public class HttpUtil {
         httpGet.setConfig(this.getConfig());
         //使用httpClient发起请求，获取响应
         CloseableHttpResponse response = null;
+        //获取图片名
+        String picName = url.substring(url.lastIndexOf("/"));
         try {
             response = httpClient.execute(httpGet);
             if (response.getStatusLine().getStatusCode() == 200){
                 //判断响应体Entity是否为空，如果不为空就可以使用EntityUtils
                 if (response.getEntity() != null){
-                    //获取图片名，重命名图片
-                    String picName = url.substring(url.lastIndexOf("/"));
-                    System.out.println("开始下载:"+picName);
                     //下载图片
-                    OutputStream outputStream = new FileOutputStream(file+"\\"+picName);
+                    File newFile = new File(file+"\\"+picName);
+                    if (newFile.exists()){
+                        /*existed.write((picName+"\r\n").getBytes());*/
+                        return;
+                    }
+                    OutputStream outputStream = new FileOutputStream(newFile);
                     response.getEntity().writeTo(outputStream);
                     outputStream.close();
-                    System.out.println("下载完成:"+picName);
-                    //返回图片名称
-                    return picName;
+                    //记录日志
+                    finished.write((picName+"\r\n").getBytes());
                 }else {
-                    return "响应体为空";
+                    entituNull.write((picName+"\r\n").getBytes());
                 }
             }
         } catch (IOException e) {
-            return null;
+            try {
+                ioException.write((picName+"\r\n").getBytes());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }finally {
             try {
                 response.close();
             } catch (IOException e) {
-                return null;
+                try {
+                    responseClose.write((picName+"\r\n").getBytes());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
-        //解析响应，返回结果
-        return "error："+response.getStatusLine().getStatusCode();
     }
-
-
 }
