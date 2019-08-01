@@ -26,7 +26,12 @@ public class DicTimTask {
         String url = "https://www.sxxl.com/VectorGallery-index-cid-6-channel-2085-sex-32940.html?&p=";
         //按照页码对手机的搜索信息进行遍历爬取
         for (int i=1;i<467;i++){
-            String html = httpUtil.doGetHtml(url + i);
+            String html = null;
+            try {
+                html = httpUtil.doGetHtml(url + i);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             //解析页面，获取商品数据并保存
             this.parse(html);
         }

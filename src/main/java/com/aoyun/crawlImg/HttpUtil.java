@@ -23,15 +23,16 @@ public class HttpUtil {
     private static volatile FileOutputStream ioException;
     private static volatile FileOutputStream responseClose;
     private static volatile FileOutputStream exception;
+    private static String logDir = "D:\\爬虫\\log\\";
 
     static {
         try {
-            finished = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\finished.txt"));
-            existed = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\existed.txt"));
-            entituNull = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\entity_null.txt"));
-            ioException = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\io_exception.txt"));
-            responseClose = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\response_close.txt"));
-            exception = new FileOutputStream(new File("D:\\爬虫\\pngimg.com\\log\\exception.txt"));
+            finished = new FileOutputStream(new File(logDir+"finished.txt"));
+            existed = new FileOutputStream(new File(logDir+"existed.txt"));
+            entituNull = new FileOutputStream(new File(logDir+"entity_null.txt"));
+            ioException = new FileOutputStream(new File(logDir+"io_exception.txt"));
+            responseClose = new FileOutputStream(new File(logDir+"response_close.txt"));
+            exception = new FileOutputStream(new File(logDir+"exception.txt"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -45,7 +46,7 @@ public class HttpUtil {
         this.cm.setDefaultMaxPerRoute(10);
     }
 
-    public String doGetHtml(String url){
+    public String doGetHtml(String url) throws Exception{
         //通过连接词获取httpClient对象
         CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(cm).build();
         //通过创建httpGet对象，设置url对象
@@ -157,11 +158,22 @@ public class HttpUtil {
                 .build();
     }
 
-    public void doGetPngImg(String url,File file) {
+    public void doGetPngImg(String url,File file){
         //通过连接池获取httpClient对象
         CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(cm).build();
         //通过创建httpGet对象，设置url对象
-        HttpGet httpGet = new HttpGet(url);
+        HttpGet httpGet = null;
+        try {
+            httpGet = new HttpGet(url);
+        }catch (IllegalArgumentException e){
+            try {
+                exception.write((url+e.getMessage()+"\r\n").getBytes());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return;
+        }
         //设置请求信息
         httpGet.setConfig(this.getConfig());
         //使用httpClient发起请求，获取响应
@@ -183,23 +195,28 @@ public class HttpUtil {
                     response.getEntity().writeTo(outputStream);
                     outputStream.close();
                     //记录日志
-                    finished.write((picName+"\r\n").getBytes());
+                    finished.write((url+"\r\n").getBytes());
                 }else {
-                    entituNull.write((picName+"\r\n").getBytes());
+                    entituNull.write((url+"\r\n").getBytes());
                 }
             }
         } catch (IOException e) {
             try {
-                ioException.write((picName+"\r\n").getBytes());
-            } catch (IOException ex) {
+                ioException.write((url+"\r\n").getBytes());
+            } catch (Exception ex) {
+                try {
+                    exception.write((url+e.getMessage()+"\r\n").getBytes());
+                } catch (Exception exc) {
+                    exc.printStackTrace();
+                }
                 ex.printStackTrace();
             }
         }finally {
             try {
                 response.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 try {
-                    responseClose.write((picName+"\r\n").getBytes());
+                    responseClose.write((url+"\r\n").getBytes());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }

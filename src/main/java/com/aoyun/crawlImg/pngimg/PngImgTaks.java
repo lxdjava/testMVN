@@ -22,11 +22,6 @@ public class PngImgTaks {
 
 
     public static void main(String[] args) throws IOException {
-        try {
-            Thread.sleep(1000*60*60*2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         PngImgTaks pngImgTaks = new PngImgTaks();
         pngImgTaks.TicTask();
         //关闭线程池
@@ -47,9 +42,14 @@ public class PngImgTaks {
     * @param url 要爬取的网站
     * @param file 图片保存地址
     * */
-    private void parse(String url, File file) throws IOException {
+    private void parse(String url, File file) {
         //解析html获取DOM元素
-        String html = httpUtil.doGetHtml(url);
+        String html = null;
+        try {
+            html = httpUtil.doGetHtml(url);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Document document = Jsoup.parse(html);
         //从一级分类开始解析
         Elements elements = document.select("li.catalog");
@@ -74,15 +74,31 @@ public class PngImgTaks {
                 String sub_category_url = url+"imgs/"+category+"/"+sub_category+"/";
                 System.out.println("-------------二级分类："+category+"> "+sub_category_url.toLowerCase()+" 开始爬取--------------");
                 //进入二级分类，去一张张获取图片
-                sub_ctg(sub_category_url.toLowerCase(),file2);
+                try {
+                    sub_ctg(sub_category_url.toLowerCase(),file2);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 System.out.println("-------------二级分类："+category+"> "+sub_category_url.toLowerCase()+" 解析完成，等待线程下载图片--------------");
             }
             System.out.println("*************************二级分类地址："+category+" 解析完成，等待线程下载图片**************************");
-
         }
+        System.out.println("  #############       ##      #          #     ##         # # # #        ##           ##                                              ");
+        System.out.println("  ##                          ##         #              #          #     ##           ##                       ");
+        System.out.println("  ##                  ##      # #        #     ##      #                 ##           ##                ");
+        System.out.println("  ##                  ##      #  #       #     ##      #                 ##           ##                   ");
+        System.out.println("  ##                  ##      #   #      #     ##       #                ##           ##                   ");
+        System.out.println("  #############       ##      #    #     #     ##         #              ###############                                            ");
+        System.out.println("  ##                  ##      #     #    #     ##           # #  #       ##           ##                      ");
+        System.out.println("  ##                  ##      #      #   #     ##                  #     ##           ##                       ");
+        System.out.println("  ##                  ##      #       #  #     ##                   #    ##           ##                      ");
+        System.out.println("  ##                  ##      #        # #     ##      #            #    ##           ##                        ");
+        System.out.println("  ##                  ##      #         ##     ##       #         #      ##           ##                      ");
+        System.out.println("  ##                  ##      #          #     ##         # # # #        ##           ##                     ");
+        System.out.println("主线程大功告成，全部图片解析完成");
     }
 
-    private static void sub_ctg(String  url, File file2){
+    private static void sub_ctg(String  url, File file2) throws Exception {
         String html = httpUtil.doGetHtml(url);
         Document document = Jsoup.parse(html);
         Elements imgs = document.select("div.png_png.png_imgs>a");
