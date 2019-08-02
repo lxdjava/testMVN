@@ -1,7 +1,6 @@
 package com.aoyun.crawlImg.pngimg;
 
 import com.aoyun.crawlImg.HttpUtil;
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,7 +12,6 @@ import java.util.concurrent.*;
 
 public class PngImgTaks {
     private static HttpUtil httpUtil = new HttpUtil();
-    private static PngImgPojo pngImgPojo = new PngImgPojo();
     // 创建等待队列
     //private static BlockingQueue bqueue = new ArrayBlockingQueue(100);
     private static LinkedBlockingQueue linkedBlockingQueue = new LinkedBlockingQueue();

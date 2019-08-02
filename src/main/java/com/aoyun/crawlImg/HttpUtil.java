@@ -23,7 +23,7 @@ public class HttpUtil {
     private static volatile FileOutputStream ioException;
     private static volatile FileOutputStream responseClose;
     private static volatile FileOutputStream exception;
-    private static String logDir = "D:\\爬虫\\log\\";
+    private static String logDir = "D:\\爬虫\\pixabay.log\\";
 
     static {
         try {

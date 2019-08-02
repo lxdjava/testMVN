@@ -1,18 +1,12 @@
 package com.aoyun.crawlImg.kisspng;
 
 import com.aoyun.crawlImg.HttpUtil;
-import com.aoyun.crawlImg.pngimg.PngImgPojo;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class KissPngTask {
     private static HttpUtil httpUtil = new HttpUtil();
