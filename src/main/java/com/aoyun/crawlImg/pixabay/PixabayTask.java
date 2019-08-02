@@ -35,7 +35,7 @@ public class PixabayTask {
             String ctg1 = entry.getKey();
             File file1 = new File(rootDir.getPath()+"/"+ctg1);
             //不要搜2020
-            if (file1.equals("2020")){
+            if (ctg1.equals("2020")){
                 continue;
             }
             if (!file1.exists()){
@@ -44,16 +44,16 @@ public class PixabayTask {
             for (String ctg2:entry.getValue()){
                 File file2 = new File(rootDir.getPath()+"/"+ctg1+"/"+ctg2);
                 //不要搜other
-                if (file2.equals("Other")){
+                if (ctg2.equals("Other")){
                     continue;
                 }
                 if (!file2.exists()){
                     file2.mkdir();
                 }
                 ctgSearch(ctg2,file2);
-                break;
+//                break;
             }
-            break;
+//            break;
         }
     }
 
@@ -74,7 +74,7 @@ public class PixabayTask {
         //分页循环
         for (int i = 1; i<=pageMax; i++){
             pageHtml(serachURl+"/?pagi="+i,file2);
-            break;
+//            break;
         }
     }
     //获取总页数
@@ -100,6 +100,7 @@ public class PixabayTask {
             String s = element.attr("href");
             String imgUrl = "https://pixabay.com"+s;
             pool.execute(new SubThread(imgUrl,file2));
+//            break;
         }
     }
     //解析每个图片h5代码
