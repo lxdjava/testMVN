@@ -24,6 +24,15 @@ public class HttpUtil {
     private static volatile FileOutputStream responseClose;
     private static volatile FileOutputStream exception;
     private static String logDir = "D:\\爬虫\\pixabay.log\\";
+    //设置请求信息
+    private RequestConfig getConfig(){
+        return RequestConfig.custom()
+                //从连接池中获取连接的超时时间
+                .setConnectionRequestTimeout(800)
+                .setConnectTimeout(1000)
+                .setSocketTimeout(7000)
+                .build();
+    }
 
     static {
         try {
@@ -43,10 +52,10 @@ public class HttpUtil {
         //设置最大连接数
         this.cm.setMaxTotal(100);
         //设置每台host的最大连接数
-        this.cm.setDefaultMaxPerRoute(10);
+        this.cm.setDefaultMaxPerRoute(80);
     }
 
-    public String doGetHtml(String url) throws Exception{
+    public String doGetHtml(String url){
         //通过连接词获取httpClient对象
         CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(cm).build();
         //通过创建httpGet对象，设置url对象
@@ -91,19 +100,23 @@ public class HttpUtil {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }finally {
             try {
                 response.close();
+            } catch (NullPointerException e) {
+                try {
+                    responseClose.write((url+e.getMessage()).getBytes());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-                return null;
             }
         }
         //解析响应，返回结果
-        return "error："+response.getStatusLine().getStatusCode();
+        return null;
     }
-
 
     public String doGetImage(String url){
         //通过连接池获取httpClient对象
@@ -148,15 +161,6 @@ public class HttpUtil {
         //解析响应，返回结果
         return "error："+response.getStatusLine().getStatusCode();
     }
-    //设置请求信息
-    private RequestConfig getConfig(){
-        return RequestConfig.custom()
-                //从连接池中获取连接的超时时间
-                .setConnectionRequestTimeout(3000)
-                .setConnectTimeout(5000)
-                .setSocketTimeout(25000)
-                .build();
-    }
 
     public void doGetPngImg(String url,File file){
         //通过连接池获取httpClient对象
@@ -188,7 +192,7 @@ public class HttpUtil {
                     //下载图片
                     File newFile = new File(file+"\\"+picName);
                     if (newFile.exists()){
-                        /*existed.write((picName+"\r\n").getBytes());*/
+                        existed.write((picName+"\r\n").getBytes());
                         return;
                     }
                     OutputStream outputStream = new FileOutputStream(newFile);

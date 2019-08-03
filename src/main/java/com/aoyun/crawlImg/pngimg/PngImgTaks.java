@@ -1,5 +1,6 @@
 package com.aoyun.crawlImg.pngimg;
 
+import com.aoyun.crawlImg.Finish;
 import com.aoyun.crawlImg.HttpUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -81,18 +82,7 @@ public class PngImgTaks {
             }
             System.out.println("*************************二级分类地址："+category+" 解析完成，等待线程下载图片**************************");
         }
-        System.out.println("  #############       ##      #          #     ##         # # # #        ##           ##                                              ");
-        System.out.println("  ##                          ##         #              #          #     ##           ##                       ");
-        System.out.println("  ##                  ##      # #        #     ##      #                 ##           ##                ");
-        System.out.println("  ##                  ##      #  #       #     ##      #                 ##           ##                   ");
-        System.out.println("  ##                  ##      #   #      #     ##       #                ##           ##                   ");
-        System.out.println("  #############       ##      #    #     #     ##         #              ###############                                            ");
-        System.out.println("  ##                  ##      #     #    #     ##           # #  #       ##           ##                      ");
-        System.out.println("  ##                  ##      #      #   #     ##                  #     ##           ##                       ");
-        System.out.println("  ##                  ##      #       #  #     ##                   #    ##           ##                      ");
-        System.out.println("  ##                  ##      #        # #     ##      #            #    ##           ##                        ");
-        System.out.println("  ##                  ##      #         ##     ##       #         #      ##           ##                      ");
-        System.out.println("  ##                  ##      #          #     ##         # # # #        ##           ##                     ");
+        Finish.print();
         System.out.println("主线程大功告成，全部图片解析完成");
     }
 

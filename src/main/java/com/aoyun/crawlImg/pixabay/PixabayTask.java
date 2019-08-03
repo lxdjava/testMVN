@@ -1,7 +1,10 @@
 package com.aoyun.crawlImg.pixabay;
 
+import com.aoyun.crawlImg.Finish;
 import com.aoyun.crawlImg.HttpUtil;
+import org.apache.commons.codec.binary.StringUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.helper.StringUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -9,21 +12,18 @@ import org.jsoup.select.Elements;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PixabayTask {
     private static HttpUtil httpUtil = new HttpUtil();
-    private static File rootDir = new File("D:/爬虫/pixabay.com/");
+    private static File rootDir = new File("F:\\pixabay.com");
     private static String url = "https://pixabay.com/illustrations/search/";
-    // 创建等待队列
     //private static BlockingQueue bqueue = new ArrayBlockingQueue(100);
     private static LinkedBlockingQueue linkedBlockingQueue = new LinkedBlockingQueue();
     // 创建一个单线程执行程序，它可安排在给定延迟后运行命令或者定期地执行。
-    private static ThreadPoolExecutor pool = new ThreadPoolExecutor(5, 5, 0, TimeUnit.MILLISECONDS, linkedBlockingQueue);
+    private static ThreadPoolExecutor pool = new ThreadPoolExecutor(6, 6, 0, TimeUnit.MILLISECONDS, linkedBlockingQueue);
 
     public static void main(String[] args) {
         ctgForeach();
@@ -34,10 +34,12 @@ public class PixabayTask {
         for (Map.Entry<String, List<String>> entry:category.entrySet()){
             String ctg1 = entry.getKey();
             File file1 = new File(rootDir.getPath()+"/"+ctg1);
-            //不要搜2020
-            if (ctg1.equals("2020")){
+            //管理分类
+            if (ctg1.equals("2020")||ctg1.equals("Terrestrial animals")){
+                System.out.println("跳过分类："+ctg1);
                 continue;
             }
+            System.out.println("开始==============================================================="+ctg1);
             if (!file1.exists()){
                 file1.mkdir();
             }
@@ -51,10 +53,14 @@ public class PixabayTask {
                     file2.mkdir();
                 }
                 ctgSearch(ctg2,file2);
+                System.out.println("-------------------------------"+ctg2);
 //                break;
             }
+            System.out.println("解析完成==============================================================="+ctg1);
 //            break;
         }
+        pool.shutdown();
+        Finish.print();
     }
 
     public static void ctgSearch(String ctg, File file2) {
@@ -70,6 +76,9 @@ public class PixabayTask {
         }
         Document document = Jsoup.parse(html);
         String pageMaxString = document.select(".paginator").text();
+        if (StringUtil.isBlank(pageMaxString)){
+            return;
+        }
         int pageMax = getPageMax(pageMaxString);
         //分页循环
         for (int i = 1; i<=pageMax; i++){
@@ -82,7 +91,12 @@ public class PixabayTask {
         String regEx="[^0-9]";
         Pattern p = Pattern.compile(regEx);
         Matcher m = p.matcher(pageMax);
-        int trim = Integer.parseInt(m.replaceAll("").trim());
+        int trim = 0;
+        try {
+            trim = Integer.parseInt(m.replaceAll("").trim());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return trim;
     }
     //解析每个搜索页的h5代码
@@ -99,22 +113,10 @@ public class PixabayTask {
         for (Element element : a){
             String s = element.attr("href");
             String imgUrl = "https://pixabay.com"+s;
+            //开启线程,这个线程计算较少，都是io操作
             pool.execute(new SubThread(imgUrl,file2));
 //            break;
         }
-    }
-    //解析每个图片h5代码
-    public static void imgHtml(String url, File file2){
-        String html = null;
-        try {
-            html = httpUtil.doGetHtml(url);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Document document = Jsoup.parse(html);
-        String imgUrl = document.select("[itemprop=contentURL]").attr("src");
-        httpUtil.doGetPngImg(imgUrl,file2);
-        System.out.println(imgUrl+"=="+file2);
     }
     //多线程，负责解析单页图片以及下载图片
     static class SubThread implements Runnable {
@@ -129,5 +131,17 @@ public class PixabayTask {
         public void run() {
             imgHtml(src,file);
         }
+    }
+    //解析每个图片h5代码
+    public static void imgHtml(String url, File file2) {
+        String html = null;
+        html = httpUtil.doGetHtml(url);
+        if (StringUtil.isBlank(html)){
+            System.out.println(url+"这个url获取不到html");
+            return;
+        }
+        Document document = Jsoup.parse(html);
+        String imgUrl = document.select("[itemprop=contentURL]").attr("src");
+        httpUtil.doGetPngImg(imgUrl, file2);
     }
 }
