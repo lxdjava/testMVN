@@ -1,5 +1,6 @@
 package com.aoyun.crawlImg;
 
+import com.sun.deploy.net.HttpUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -28,8 +29,8 @@ public class HttpUtil {
     private RequestConfig getConfig(){
         return RequestConfig.custom()
                 //从连接池中获取连接的超时时间
-                .setConnectionRequestTimeout(800)
-                .setConnectTimeout(1000)
+                .setConnectionRequestTimeout(300)
+                .setConnectTimeout(300)
                 .setSocketTimeout(7000)
                 .build();
     }
@@ -52,7 +53,7 @@ public class HttpUtil {
         //设置最大连接数
         this.cm.setMaxTotal(100);
         //设置每台host的最大连接数
-        this.cm.setDefaultMaxPerRoute(80);
+        this.cm.setDefaultMaxPerRoute(60);
     }
 
     public String doGetHtml(String url){
@@ -103,15 +104,14 @@ public class HttpUtil {
         }finally {
             try {
                 response.close();
-            } catch (NullPointerException e) {
+            } catch (Exception e) {
                 try {
                     responseClose.write((url+e.getMessage()).getBytes());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
                 e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                return null;
             }
         }
         //解析响应，返回结果

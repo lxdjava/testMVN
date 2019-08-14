@@ -1,54 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<a:project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:a="http://maven.apache.org/POM/4.0.0"
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <a:modelVersion>4.0.0</a:modelVersion>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.6.RELEASE</version>
-    </parent>
-    <groupId>lxd</groupId>
-    <artifactId>testMVN</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <a:parent>
+        <a:groupId>org.springframework.boot</a:groupId>
+        <a:artifactId>spring-boot-starter-parent</a:artifactId>
+        <a:version>1.5.6.RELEASE</a:version>
+    </a:parent>
+    <a:groupId>lxd</a:groupId>
+    <a:artifactId>testMVN</a:artifactId>
+    <a:version>1.0-SNAPSHOT</a:version>
 
-    <dependencies>
-        <dependency><!--springmvc-->
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency><!--springdata jpa-->
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.10.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.20</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.11</version>
-        </dependency>
-    </dependencies>
+    <a:dependencies>
+        <a:dependency><!--springmvc-->
+            <a:groupId>org.springframework.boot</a:groupId>
+            <a:artifactId>spring-boot-starter-web</a:artifactId>
+        </a:dependency>
+        <a:dependency><!--springdata jpa-->
+            <a:groupId>org.springframework.boot</a:groupId>
+            <a:artifactId>spring-boot-starter-data-jpa</a:artifactId>
+        </a:dependency>
+        <a:dependency>
+            <a:groupId>mysql</a:groupId>
+            <a:artifactId>mysql-connector-java</a:artifactId>
+        </a:dependency>
+        <a:dependency>
+            <a:groupId>org.apache.httpcomponents</a:groupId>
+            <a:artifactId>httpclient</a:artifactId>
+        </a:dependency>
+        <a:dependency>
+            <a:groupId>org.jsoup</a:groupId>
+            <a:artifactId>jsoup</a:artifactId>
+            <a:version>1.10.2</a:version>
+        </a:dependency>
+        <a:dependency>
+            <a:groupId>org.apache.commons</a:groupId>
+            <a:artifactId>commons-lang3</a:artifactId>
+        </a:dependency>
+        <a:dependency>
+            <a:groupId>org.projectlombok</a:groupId>
+            <a:artifactId>lombok</a:artifactId>
+            <a:version>1.16.20</a:version>
+        </a:dependency>
+        <a:dependency>
+            <a:groupId>commons-codec</a:groupId>
+            <a:artifactId>commons-codec</a:artifactId>
+            <a:version>1.11</a:version>
+        </a:dependency>
+        <a:dependency>
+            <a:groupId>com.ygh</a:groupId>
+            <a:artifactId>common</a:artifactId>
+            <a:version>1.0-SNAPSHOT</a:version>
+        </a:dependency>
+        <a:dependency>
+            <a:groupId></a:groupId>
+            <a:artifactId>common</a:artifactId>
+            <a:version></a:version>
+        </a:dependency>
 
-</project>
+    </a:dependencies>
+
+</a:project>

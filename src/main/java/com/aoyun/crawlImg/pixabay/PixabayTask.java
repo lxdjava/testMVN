@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 public class PixabayTask {
     private static HttpUtil httpUtil = new HttpUtil();
-    private static File rootDir = new File("F:\\pixabay.com");
+    private static File rootDir = new File("D:\\爬虫\\pixabay.com");
     private static String url = "https://pixabay.com/illustrations/search/";
     //private static BlockingQueue bqueue = new ArrayBlockingQueue(100);
     private static LinkedBlockingQueue linkedBlockingQueue = new LinkedBlockingQueue();
@@ -35,7 +35,7 @@ public class PixabayTask {
             String ctg1 = entry.getKey();
             File file1 = new File(rootDir.getPath()+"/"+ctg1);
             //管理分类
-            if (ctg1.equals("2020")||ctg1.equals("Terrestrial animals")){
+            if (ctg1.equals("2020")||ctg1.equals("Terrestrial animals")||ctg1.equals("Character")||ctg1.equals("Flower")||ctg1.equals("Pattern")||ctg1.equals("Nature")){
                 System.out.println("跳过分类："+ctg1);
                 continue;
             }
@@ -45,8 +45,8 @@ public class PixabayTask {
             }
             for (String ctg2:entry.getValue()){
                 File file2 = new File(rootDir.getPath()+"/"+ctg1+"/"+ctg2);
-                //不要搜other
-                if (ctg2.equals("Other")){
+                //不要搜other,
+                if (ctg2.equals("Other")||ctg2.equals("Landscape")||ctg2.equals("Rainbow")||ctg2.equals("Flaky clouds")||ctg2.equals("Birds")){
                     continue;
                 }
                 if (!file2.exists()){
@@ -73,8 +73,13 @@ public class PixabayTask {
              html = httpUtil.doGetHtml(serachURl);
         } catch (Exception e) {
             e.printStackTrace();
+            return;
+        }
+        if (StringUtil.isBlank(html)){
+            return;
         }
         Document document = Jsoup.parse(html);
+        //获取分页信息
         String pageMaxString = document.select(".paginator").text();
         if (StringUtil.isBlank(pageMaxString)){
             return;
